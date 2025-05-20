@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1016669630216",
+    "project_id": "fir-flag-poc",
+    "storage_bucket": "fir-flag-poc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016669630216:android:b146bbaa8cf065c73646bd",
+        "android_client_info": {
+          "package_name": "com.example.firebase_flag_poc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpoA1zMMO3WgUjOO9YMdFkFT22k70u68I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
