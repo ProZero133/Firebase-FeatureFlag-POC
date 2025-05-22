@@ -33,7 +33,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _message = 'Cargando...';
-  bool _betaAccess = false;
+  bool _showAndroidVersion = false;
 
   @override
   void initState() {
@@ -49,17 +49,19 @@ class _HomeScreenState extends State<HomeScreen> {
       minimumFetchInterval: const Duration(seconds: 0),
     ));
 
+    // Set default values for the remote config parameters
     await remoteConfig.setDefaults({
-      'user_valid_for_beta': false,
+      'show_android_version': false,
       'welcome_message': 'Bienvenido a la app',
     });
 
+    // Fetch config values
     await remoteConfig.fetchAndActivate();
-    print('Beta access before: $_betaAccess');
     setState(() {
+      // Get the values from remote config as remoteConfig.typeOfVariable('keyValue in Firebase Console')
       _message = remoteConfig.getString('welcome_message');
-      _betaAccess = remoteConfig.getBool('show_beta_feature');
-      print('Beta access after: $_betaAccess');
+      _showAndroidVersion = remoteConfig.getBool('show_android_version');
+      print('\x1B[32mIs user device android?: $_showAndroidVersion\x1B[0m');
     });
   }
 
@@ -78,15 +80,16 @@ class _HomeScreenState extends State<HomeScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            if (_betaAccess)
+            // Display only if the user is on Android
+            if (_showAndroidVersion)
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: Colors.blue,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
-                  '¡Estás suscrito a la beta!',
+                  '¡Exclusive Android Feature!',
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
