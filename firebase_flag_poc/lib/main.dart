@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'next_screen.dart';
 
+// Firebase Analytics instance to track user properties
 final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase
   await Firebase.initializeApp();
-  await analytics.setUserProperty(name: 'beta_user', value: 'true');
+  await analytics.setUserProperty(name: 'Beta_access', value: true.toString());
+  await analytics.setUserProperty(name: 'user_id', value: '123456');
   runApp(const MyApp());
 }
 
@@ -32,27 +36,38 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _message = 'Cargando...';
+  // Variables to hold remote config values
+  String _message = 'Loading...';
   bool _showAndroidVersion = false;
+  bool _betaAccess = false;
+  bool _enableNextScreen = false;
 
   @override
   void initState() {
     super.initState();
+    // Fetch remote config values when the app starts
     fetchRemoteConfig();
   }
 
+
+// Fetch remote config values from Firebase (Execute this every time you want to check for updates in Firebase Console)
   Future<void> fetchRemoteConfig() async {
+    // Instantiate Firebase Remote Config
     final remoteConfig = FirebaseRemoteConfig.instance;
 
+    // Set config settings
+    // Fetch timeout is set to 10 seconds, and minimum fetch interval is set to 0 seconds
     await remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(seconds: 10),
       minimumFetchInterval: const Duration(seconds: 0),
     ));
 
-    // Set default values for the remote config parameters
+    // Set default values for the remote config parameters in case they are not set in Firebase Console
+    // or if the fetch fails
     await remoteConfig.setDefaults({
       'show_android_version': false,
       'welcome_message': 'Bienvenido a la app',
+      'Beta_access': false,
     });
 
     // Fetch config values
@@ -61,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
       // Get the values from remote config as remoteConfig.typeOfVariable('keyValue in Firebase Console')
       _message = remoteConfig.getString('welcome_message');
       _showAndroidVersion = remoteConfig.getBool('show_android_version');
+      _enableNextScreen = remoteConfig.getBool('show_beta_feature');
+
       print('\x1B[32mIs user device android?: $_showAndroidVersion\x1B[0m');
     });
   }
@@ -74,6 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(
+              onPressed: fetchRemoteConfig,
+              child: const Text('Refresh Config'),
+            ),
             Text(
               _message,
               style: const TextStyle(fontSize: 24),
@@ -93,6 +114,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
+              const SizedBox(height: 40),
+            ElevatedButton(
+              // Enable the button only if enabled in Firebase Remote Config
+              onPressed: _enableNextScreen
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NextScreen(),
+                        ),
+                      );
+                    }
+                  : null,
+              child: const Text('Next Screen (Beta Feature)'),
+            ),
           ],
         ),
       ),
